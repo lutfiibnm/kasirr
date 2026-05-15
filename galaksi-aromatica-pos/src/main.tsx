@@ -381,42 +381,27 @@ function App() {
         <Logo />
 
         <nav>
-          <button
-            className={view === 'pos' ? 'active' : ''}
-            onClick={() => setView('pos')}
-          >
+          <button className={view === 'pos' ? 'active' : ''} onClick={() => setView('pos')}>
             <ShoppingCart />
             POS / Kasir
           </button>
 
-          <button
-            className={view === 'menu' ? 'active' : ''}
-            onClick={() => setView('menu')}
-          >
+          <button className={view === 'menu' ? 'active' : ''} onClick={() => setView('menu')}>
             <Utensils />
             Menu
           </button>
 
-          <button
-            className={view === 'history' ? 'active' : ''}
-            onClick={() => setView('history')}
-          >
+          <button className={view === 'history' ? 'active' : ''} onClick={() => setView('history')}>
             <ListOrdered />
             Riwayat Transaksi
           </button>
 
-          <button
-            className={view === 'sales' ? 'active' : ''}
-            onClick={() => setView('sales')}
-          >
+          <button className={view === 'sales' ? 'active' : ''} onClick={() => setView('sales')}>
             <BarChart3 />
             Laporan Penjualan
           </button>
 
-          <button
-            className={view === 'settings' ? 'active' : ''}
-            onClick={() => setView('settings')}
-          >
+          <button className={view === 'settings' ? 'active' : ''} onClick={() => setView('settings')}>
             <Settings />
             Pengaturan
           </button>
@@ -481,9 +466,7 @@ function App() {
 
         {view === 'menu' && <MenuPage db={db} patchDb={patchDb} />}
 
-        {view === 'history' && (
-          <HistoryPage db={db} printTransaction={printTransaction} />
-        )}
+        {view === 'history' && <HistoryPage db={db} printTransaction={printTransaction} />}
 
         {view === 'sales' && <SalesPage db={db} />}
 
@@ -565,9 +548,7 @@ function POS({
       const found = c.find(i => i.productId === p.id && !i.note);
 
       return found
-        ? c.map(i =>
-            i.cartId === found.cartId ? { ...i, qty: i.qty + 1 } : i
-          )
+        ? c.map(i => (i.cartId === found.cartId ? { ...i, qty: i.qty + 1 } : i))
         : [
             ...c,
             {
@@ -583,13 +564,10 @@ function POS({
 
   const qty = (id: string, n: number) =>
     setCart(c =>
-      c.map(i =>
-        i.cartId === id ? { ...i, qty: Math.max(1, i.qty + n) } : i
-      )
+      c.map(i => (i.cartId === id ? { ...i, qty: Math.max(1, i.qty + n) } : i))
     );
 
-  const remove = (id: string) =>
-    setCart(c => c.filter(i => i.cartId !== id));
+  const remove = (id: string) => setCart(c => c.filter(i => i.cartId !== id));
 
   const makeTrx = (m: PaymentMethod, paid?: number): Transaction => ({
     id: uid(),
@@ -657,63 +635,38 @@ function POS({
       <div className="pos-left card">
         <div className="order-line">
           <div className="seg">
-            <button
-              className={orderType === 'Dine In' ? 'on' : ''}
-              onClick={() => setOrderType('Dine In')}
-            >
+            <button className={orderType === 'Dine In' ? 'on' : ''} onClick={() => setOrderType('Dine In')}>
               Dine In
             </button>
 
-            <button
-              className={orderType === 'Take Away' ? 'on' : ''}
-              onClick={() => setOrderType('Take Away')}
-            >
+            <button className={orderType === 'Take Away' ? 'on' : ''} onClick={() => setOrderType('Take Away')}>
               Take Away
             </button>
           </div>
 
           <label>
             No. Meja
-            <input
-              value={table}
-              disabled={orderType === 'Take Away'}
-              onChange={e => setTable(e.target.value)}
-            />
+            <input value={table} disabled={orderType === 'Take Away'} onChange={e => setTable(e.target.value)} />
           </label>
 
           <label>
             Nama Pelanggan
-            <input
-              value={cust}
-              onChange={e => setCust(e.target.value)}
-              placeholder="Opsional"
-            />
+            <input value={cust} onChange={e => setCust(e.target.value)} placeholder="Opsional" />
           </label>
 
           <div className="search search-full">
             <Search />
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Cari menu..."
-            />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari menu..." />
           </div>
         </div>
 
         <div className="tabs">
-          <button
-            className={cat === 'all' ? 'on' : ''}
-            onClick={() => setCat('all')}
-          >
+          <button className={cat === 'all' ? 'on' : ''} onClick={() => setCat('all')}>
             Semua
           </button>
 
           {db.categories.map(c => (
-            <button
-              key={c.id}
-              className={cat === c.id ? 'on' : ''}
-              onClick={() => setCat(c.id)}
-            >
+            <button key={c.id} className={cat === c.id ? 'on' : ''} onClick={() => setCat(c.id)}>
               {c.name}
             </button>
           ))}
@@ -756,9 +709,7 @@ function POS({
                   onChange={e =>
                     setCart(c =>
                       c.map(x =>
-                        x.cartId === i.cartId
-                          ? { ...x, note: e.target.value }
-                          : x
+                        x.cartId === i.cartId ? { ...x, note: e.target.value } : x
                       )
                     )
                   }
@@ -834,18 +785,12 @@ function POS({
             <strong className="pay-total">{money(total)}</strong>
 
             <div className="pay-tabs">
-              <button
-                className={method === 'cash' ? 'on' : ''}
-                onClick={() => setMethod('cash')}
-              >
+              <button className={method === 'cash' ? 'on' : ''} onClick={() => setMethod('cash')}>
                 <WalletCards />
                 Cash
               </button>
 
-              <button
-                className={method === 'qris' ? 'on' : ''}
-                onClick={() => setMethod('qris')}
-              >
+              <button className={method === 'qris' ? 'on' : ''} onClick={() => setMethod('qris')}>
                 <QrCode />
                 QRIS
               </button>
@@ -995,23 +940,12 @@ function MenuPage({
           <label className="upload">
             <ImagePlus />
             Ubah / Upload Gambar
-            <input
-              type="file"
-              accept="image/*"
-              onChange={e => readFile(e.target.files?.[0])}
-            />
+            <input type="file" accept="image/*" onChange={e => readFile(e.target.files?.[0])} />
           </label>
 
-          <input
-            placeholder="Nama menu"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-          />
+          <input placeholder="Nama menu" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
 
-          <select
-            value={form.categoryId}
-            onChange={e => setForm({ ...form, categoryId: e.target.value })}
-          >
+          <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })}>
             {db.categories.map(c => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -1023,18 +957,10 @@ function MenuPage({
             type="number"
             placeholder="Harga"
             value={form.price || ''}
-            onChange={e =>
-              setForm({ ...form, price: Number(e.target.value) })
-            }
+            onChange={e => setForm({ ...form, price: Number(e.target.value) })}
           />
 
-          <textarea
-            placeholder="Deskripsi"
-            value={form.description}
-            onChange={e =>
-              setForm({ ...form, description: e.target.value })
-            }
-          />
+          <textarea placeholder="Deskripsi" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
 
           <label className="check">
             <input
@@ -1077,10 +1003,7 @@ function HistoryPage({
       </div>
 
       {db.transactions.length === 0 ? (
-        <Empty
-          title="Belum ada transaksi"
-          text="Riwayat masih kosong. Buat transaksi dari halaman POS dulu."
-        />
+        <Empty title="Belum ada transaksi" text="Riwayat masih kosong. Buat transaksi dari halaman POS dulu." />
       ) : (
         <div className="table">
           {db.transactions.map(t => (
@@ -1093,9 +1016,7 @@ function HistoryPage({
               </span>
               <span>{t.method.toUpperCase()}</span>
               <strong>{money(t.total)}</strong>
-              <em className={t.status}>
-                {t.status === 'paid' ? 'LUNAS' : 'PENDING'}
-              </em>
+              <em className={t.status}>{t.status === 'paid' ? 'LUNAS' : 'PENDING'}</em>
               <button onClick={() => printTransaction(t)}>
                 <Printer />
                 Cetak
@@ -1116,13 +1037,10 @@ function SalesPage({ db }: { db: Db }) {
   const byProduct = new Map<string, number>();
 
   paid.forEach(t =>
-    t.items.forEach(i =>
-      byProduct.set(i.name, (byProduct.get(i.name) || 0) + i.qty)
-    )
+    t.items.forEach(i => byProduct.set(i.name, (byProduct.get(i.name) || 0) + i.qty))
   );
 
-  const best =
-    [...byProduct.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+  const best = [...byProduct.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
 
   const bars = Array.from({ length: 8 }).map((_, i) =>
     paid.filter((_, idx) => idx % 8 === i).reduce((s, t) => s + t.total, 0)
@@ -1195,71 +1113,44 @@ function SettingsPage({
       <div className="page-title">
         <div>
           <h2>Pengaturan Cafe</h2>
-          <p>
-            Atur data yang muncul di aplikasi, struk, pajak, service, dan ukuran
-            printer.
-          </p>
+          <p>Atur data cafe, nama operator, struk, pajak, service, dan printer.</p>
         </div>
       </div>
 
       <div className="settings-grid">
         <div className="field">
           <label>Nama Cafe</label>
-          <input
-            value={s.storeName}
-            onChange={e => setS({ ...s, storeName: e.target.value })}
-            placeholder="Galaksi Aromatica"
-          />
-          <small>Nama utama yang tampil di header aplikasi dan struk.</small>
+          <input value={s.storeName} onChange={e => setS({ ...s, storeName: e.target.value })} placeholder="Galaksi Aromatica" />
+          <small>Nama cafe yang tampil di aplikasi dan struk.</small>
         </div>
 
         <div className="field">
           <label>Tagline Cafe</label>
-          <input
-            value={s.subtitle}
-            onChange={e => setS({ ...s, subtitle: e.target.value })}
-            placeholder="Coffee & Eatery"
-          />
-          <small>Teks kecil di bawah nama cafe pada struk.</small>
+          <input value={s.subtitle} onChange={e => setS({ ...s, subtitle: e.target.value })} placeholder="Coffee & Eatery" />
+          <small>Teks kecil di bawah nama cafe.</small>
         </div>
 
         <div className="field">
           <label>Nama Operator / Kasir</label>
-          <input
-            value={s.operatorName}
-            onChange={e => setS({ ...s, operatorName: e.target.value })}
-            placeholder="Lutfi Ibnu Maulana"
-          />
-          <small>Nama ini akan tampil di header aplikasi dan struk/invoice.</small>
+          <input value={s.operatorName} onChange={e => setS({ ...s, operatorName: e.target.value })} placeholder="Lutfi Ibnu Maulana" />
+          <small>Nama ini tampil di header aplikasi dan di struk.</small>
         </div>
 
         <div className="field">
           <label>Alamat Cafe</label>
-          <textarea
-            value={s.address}
-            onChange={e => setS({ ...s, address: e.target.value })}
-            placeholder="Jl. Bintang Terang No. 18, Jakarta"
-          />
-          <small>Alamat yang dicetak di bagian atas struk.</small>
+          <textarea value={s.address} onChange={e => setS({ ...s, address: e.target.value })} placeholder="Jl. Bintang Terang No. 18, Jakarta" />
+          <small>Alamat yang tampil di struk.</small>
         </div>
 
         <div className="field">
           <label>Nomor Telepon</label>
-          <input
-            value={s.phone}
-            onChange={e => setS({ ...s, phone: e.target.value })}
-            placeholder="(021) 1234-5678"
-          />
-          <small>Nomor kontak yang tampil di struk.</small>
+          <input value={s.phone} onChange={e => setS({ ...s, phone: e.target.value })} placeholder="(021) 1234-5678" />
+          <small>Nomor telepon yang tampil di struk.</small>
         </div>
 
         <div className="field">
           <label>Footer Struk</label>
-          <input
-            value={s.footer}
-            onChange={e => setS({ ...s, footer: e.target.value })}
-            placeholder="Terima kasih atas kunjungan Anda"
-          />
+          <input value={s.footer} onChange={e => setS({ ...s, footer: e.target.value })} placeholder="Terima kasih atas kunjungan Anda" />
           <small>Kalimat penutup di bagian bawah struk.</small>
         </div>
 
@@ -1277,7 +1168,7 @@ function SettingsPage({
             <option>80mm</option>
             <option>58mm</option>
           </select>
-          <small>80mm umum untuk printer cafe. 58mm lebih kecil seperti printer mini.</small>
+          <small>Pilih ukuran printer thermal yang dipakai.</small>
         </div>
 
         <div className="field">
@@ -1286,12 +1177,10 @@ function SettingsPage({
             type="number"
             min="0"
             value={s.servicePercent}
-            onChange={e =>
-              setS({ ...s, servicePercent: Number(e.target.value) })
-            }
+            onChange={e => setS({ ...s, servicePercent: Number(e.target.value) })}
             placeholder="5"
           />
-          <small>Biaya layanan. Isi 0 kalau cafe tidak pakai service.</small>
+          <small>Isi 0 kalau tidak dipakai.</small>
         </div>
 
         <div className="field">
