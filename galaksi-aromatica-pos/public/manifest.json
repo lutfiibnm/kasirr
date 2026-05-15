@@ -1,0 +1,18 @@
+{
+  "name": "Galaksi Aromatica POS",
+  "short_name": "Galaksi POS",
+  "description": "Aplikasi kasir cafe Galaksi Aromatica POS",
+  "start_url": "/kasirr/",
+  "scope": "/kasirr/",
+  "display": "standalone",
+  "background_color": "#120b07",
+  "theme_color": "#8b4a1f",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "/kasirr/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
