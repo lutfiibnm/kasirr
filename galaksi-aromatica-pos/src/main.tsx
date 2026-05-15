@@ -276,7 +276,7 @@ const defaultDb: Db = {
   settings: {
     storeName: 'Galaksi Aromatica',
     subtitle: 'Coffee & Eatery',
-    operatorName: 'Lutfi Ibnu Maulana',
+    operatorName: 'Lutfi Ibnu Marlianto',
     address: 'Jl. Bintang Terang No. 18, Jakarta',
     phone: '(021) 1234-5678',
     footer: 'Terima kasih atas kunjungan Anda • Sampai jumpa di Galaksi Aromatica!',
@@ -495,7 +495,7 @@ function Login({ db, onLogin }: { db: Db; onLogin: () => void }) {
     <div className="login">
       <div className="login-card">
         <Logo />
-        <h1>Galaksi Aromatica POS</h1>
+        <h1>Galaksi Aromatica </h1>
         <p>Satu akun operator. Tidak ada admin/kasir terpisah.</p>
 
         <input
