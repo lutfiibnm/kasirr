@@ -1298,3 +1298,48 @@ button.save-settings-button:active {
     size: 80mm auto;
   }
 }
+/* === PAKSA FIX TOMBOL SIMPAN PERUBAHAN - TARUH PALING BAWAH === */
+.settings-page .settings-actions {
+  width: 100% !important;
+  display: block !important;
+  margin-top: 28px !important;
+}
+
+.settings-page .settings-actions button,
+.settings-page .settings-actions .primary,
+.settings-page .settings-actions .save-settings-button,
+button.primary.save-settings-button,
+button.save-settings-button {
+  width: 100% !important;
+  height: 66px !important;
+  min-height: 66px !important;
+  padding: 0 24px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: none !important;
+  border-radius: 18px !important;
+
+  background: #6b3417 !important;
+  background-image: linear-gradient(135deg, #a96328, #5a2b12) !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  font-size: 19px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  opacity: 1 !important;
+
+  box-shadow: 0 14px 32px rgba(90, 43, 18, 0.28) !important;
+  cursor: pointer !important;
+}
+
+.settings-page .settings-actions button:hover,
+.settings-page .settings-actions .save-settings-button:hover,
+button.primary.save-settings-button:hover {
+  filter: brightness(1.08) !important;
+}
