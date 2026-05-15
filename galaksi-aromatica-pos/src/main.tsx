@@ -14,6 +14,7 @@ type PaymentStatus = 'pending' | 'paid';
 
 type Operator = { name: string; pin: string };
 type Category = { id: string; name: string };
+
 type Product = {
   id: string;
   categoryId: string;
@@ -26,6 +27,7 @@ type Product = {
   bestSeller?: boolean;
   promo?: boolean;
 };
+
 type CartItem = {
   cartId: string;
   productId: string;
@@ -35,6 +37,7 @@ type CartItem = {
   qty: number;
   note?: string;
 };
+
 type Transaction = {
   id: string;
   invoice: string;
@@ -75,7 +78,12 @@ type Db = {
   settings: SettingsData;
 };
 
-type Notice = { title: string; message: string; amount: number; time: string } | null;
+type Notice = {
+  title: string;
+  message: string;
+  amount: number;
+  time: string;
+} | null;
 
 const money = (n: number) =>
   new Intl.NumberFormat('id-ID', {
@@ -465,11 +473,8 @@ function App() {
         )}
 
         {view === 'menu' && <MenuPage db={db} patchDb={patchDb} />}
-
         {view === 'history' && <HistoryPage db={db} printTransaction={printTransaction} />}
-
         {view === 'sales' && <SalesPage db={db} />}
-
         {view === 'settings' && <SettingsPage db={db} patchDb={patchDb} />}
       </main>
 
@@ -1106,8 +1111,6 @@ function SettingsPage({
     ...db.settings
   });
 
-  const reset = () => setS(defaultDb.settings);
-
   return (
     <section className="page-full card settings-page">
       <div className="page-title">
@@ -1198,7 +1201,7 @@ function SettingsPage({
 
       <div className="settings-actions">
         <button
-          className="primary"
+          className="primary save-settings-button"
           onClick={() =>
             patchDb(d => ({
               ...d,
@@ -1210,10 +1213,8 @@ function SettingsPage({
             }))
           }
         >
-          Simpan Pengaturan
+          Simpan Perubahan
         </button>
-
-        <button onClick={reset}>Kembalikan Pengaturan Awal</button>
       </div>
     </section>
   );
