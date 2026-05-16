@@ -1370,4 +1370,14 @@ button.primary.save-settings-button:hover {
     margin: 0;
     size: 80mm auto;
   }
+  /* Hilangkan tombol panah/scroll kecil di input angka */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
 }
