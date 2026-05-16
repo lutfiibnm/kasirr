@@ -439,7 +439,7 @@ function App() {
       <main className="work">
         <header className="top no-print">
           <div>
-            <h1>{db.settings.storeName} POS</h1>
+            <h1>{db.settings.storeName}</h1>
             <p>{today()}</p>
           </div>
 
