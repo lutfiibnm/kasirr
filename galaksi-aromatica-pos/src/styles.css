@@ -1377,3 +1377,97 @@ button.primary.save-settings-button:hover {
     break-before: page !important;
   }
 }
+/* === PRINT 2 STRUK: PELANGGAN + BARISTA/KOKI === */
+#print-area {
+  display: none;
+}
+
+.print-sheet {
+  display: block;
+}
+
+.kitchen-receipt {
+  page-break-before: always !important;
+  break-before: page !important;
+}
+
+.kitchen-receipt .receipt-brand h3 {
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.kitchen-receipt h3 {
+  font-size: 15px;
+  margin: 10px 0 8px;
+}
+
+.kitchen-item {
+  text-align: left;
+  border-bottom: 1px dashed #111;
+  padding: 8px 0;
+}
+
+.kitchen-item b {
+  display: block;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.kitchen-item small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+@media print {
+  html,
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .no-print,
+  .sidebar,
+  .work,
+  .modal {
+    display: none !important;
+  }
+
+  #print-area {
+    display: block !important;
+    position: static !important;
+  }
+
+  .print-sheet {
+    display: block !important;
+  }
+
+  .receipt {
+    display: block !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 2mm !important;
+    color: #111 !important;
+    background: white !important;
+  }
+
+  .receipt-80 {
+    width: 80mm !important;
+  }
+
+  .receipt-58 {
+    width: 58mm !important;
+  }
+
+  .kitchen-receipt {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+}
