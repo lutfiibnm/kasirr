@@ -366,10 +366,13 @@ function App() {
 
   const patchDb = (fn: (d: Db) => Db) => setDb(fn);
 
-  const printTransaction = (trx: Transaction) => {
-    setLastPrint(trx);
-    setTimeout(() => window.print(), 250);
-  };
+ const printTransaction = (trx: Transaction) => {
+  setLastPrint(trx);
+
+  setTimeout(() => {
+    window.print();
+  }, 900);
+};
 
   if (!logged) {
     return (
