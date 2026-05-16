@@ -480,6 +480,7 @@ function App() {
 
       <div id="print-area">
         <Receipt trx={lastPrint} settings={db.settings} />
+        <KitchenReceipt trx={lastPrint} settings={db.settings} />
       </div>
     </div>
   );
@@ -495,7 +496,7 @@ function Login({ db, onLogin }: { db: Db; onLogin: () => void }) {
     <div className="login">
       <div className="login-card">
         <Logo />
-        <h1>Galaksi Aromatica </h1>
+        <h1>Galaksi Aromatica</h1>
         <p>Satu akun operator. Tidak ada admin/kasir terpisah.</p>
 
         <input
@@ -1199,9 +1200,14 @@ function SettingsPage({
         </div>
       </div>
 
-      <div className="settings-actions">
+      <div
+        style={{
+          marginTop: '26px',
+          width: '100%'
+        }}
+      >
         <button
-          className="primary save-settings-button"
+          type="button"
           onClick={() =>
             patchDb(d => ({
               ...d,
@@ -1212,6 +1218,22 @@ function SettingsPage({
               }
             }))
           }
+          style={{
+            width: '100%',
+            minHeight: '64px',
+            padding: '16px 24px',
+            borderRadius: '18px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #8b4a1f, #5a2b12)',
+            color: '#fff7ea',
+            fontSize: '18px',
+            fontWeight: 900,
+            cursor: 'pointer',
+            boxShadow: '0 14px 32px rgba(90, 43, 18, 0.22)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
         >
           Simpan Perubahan
         </button>
@@ -1256,7 +1278,7 @@ function Receipt({
 
       <hr />
 
-      <h3>INVOICE</h3>
+      <h3>INVOICE PELANGGAN</h3>
       <b>{trx.invoice}</b>
 
       <div className="rrow">
@@ -1356,6 +1378,82 @@ function Receipt({
       </p>
 
       <small>by lutfiibnm</small>
+    </div>
+  );
+}
+
+function KitchenReceipt({
+  trx,
+  settings
+}: {
+  trx: Transaction | null;
+  settings: SettingsData;
+}) {
+  if (!trx) return null;
+
+  return (
+    <div className={`receipt kitchen-receipt receipt-${settings.receiptSize.replace('mm', '')}`}>
+      <div className="receipt-brand">
+        <Logo compact />
+        <h3>CATATAN BARISTA / KOKI</h3>
+        <p>{settings.storeName}</p>
+        <small>Order untuk bar / dapur</small>
+      </div>
+
+      <hr />
+
+      <div className="rrow">
+        <span>Invoice</span>
+        <b>{trx.invoice}</b>
+      </div>
+
+      <div className="rrow">
+        <span>Tipe Pesanan</span>
+        <b>{trx.orderType}</b>
+      </div>
+
+      {trx.tableNumber && (
+        <div className="rrow">
+          <span>No. Meja</span>
+          <b>{trx.tableNumber}</b>
+        </div>
+      )}
+
+      {trx.customerName && (
+        <div className="rrow">
+          <span>Pelanggan</span>
+          <b>{trx.customerName}</b>
+        </div>
+      )}
+
+      <div className="rrow">
+        <span>Operator</span>
+        <b>{trx.operator}</b>
+      </div>
+
+      <div className="rrow">
+        <span>Waktu</span>
+        <b>{fmt(trx.createdAt)}</b>
+      </div>
+
+      <hr />
+
+      <h3>DAFTAR PESANAN</h3>
+
+      {trx.items.map(i => (
+        <div className="kitchen-item" key={i.cartId}>
+          <b>{i.qty}x {i.name}</b>
+          {i.note && <small>Catatan: {i.note}</small>}
+        </div>
+      ))}
+
+      <hr />
+
+      <p>
+        <b>Mohon proses sesuai urutan pesanan.</b>
+      </p>
+
+      <small>Dicetak otomatis dari Galaksi Aromatica</small>
     </div>
   );
 }
