@@ -481,13 +481,12 @@ function App() {
         {view === 'settings' && <SettingsPage db={db} patchDb={patchDb} />}
       </main>
 
-      <div id="print-area">
-        <Receipt trx={lastPrint} settings={db.settings} />
-        <KitchenReceipt trx={lastPrint} settings={db.settings} />
-      </div>
-    </div>
-  );
-}
+     <div id="print-area">
+  <div className="print-sheet">
+    <Receipt trx={lastPrint} settings={db.settings} />
+    <KitchenReceipt trx={lastPrint} settings={db.settings} />
+  </div>
+</div>
 
 function Login({ db, onLogin }: { db: Db; onLogin: () => void }) {
   const [pin, setPin] = React.useState('');
@@ -1460,5 +1459,154 @@ function KitchenReceipt({
     </div>
   );
 }
+function KitchenReceipt({
+  trx,
+  settings
+}: {
+  trx: Transaction | null;
+  settings: SettingsData;
+}) {
+  if (!trx) return null;
 
+  return (
+    <div className={`receipt kitchen-receipt receipt-${settings.receiptSize.replace('mm', '')}`}>
+      <div className="receipt-brand">
+        <Logo compact />
+        <h3>CATATAN BARISTA / KOKI</h3>
+        <p>{settings.storeName}</p>
+        <small>Order untuk bar / dapur</small>
+      </div>
+
+      <hr />
+
+      <div className="rrow">
+        <span>Invoice</span>
+        <b>{trx.invoice}</b>
+      </div>
+
+      <div className="rrow">
+        <span>Tipe Pesanan</span>
+        <b>{trx.orderType}</b>
+      </div>
+
+      {trx.tableNumber && (
+        <div className="rrow">
+          <span>No. Meja</span>
+          <b>{trx.tableNumber}</b>
+        </div>
+      )}
+
+      {trx.customerName && (
+        <div className="rrow">
+          <span>Pelanggan</span>
+          <b>{trx.customerName}</b>
+        </div>
+      )}
+
+      <div className="rrow">
+        <span>Operator</span>
+        <b>{trx.operator}</b>
+      </div>
+
+      <div className="rrow">
+        <span>Waktu</span>
+        <b>{fmt(trx.createdAt)}</b>
+      </div>
+
+      <hr />
+
+      <h3>DAFTAR PESANAN</h3>
+
+      {trx.items.map(i => (
+        <div className="kitchen-item" key={i.cartId}>
+          <b>{i.qty}x {i.name}</b>
+          {i.note && <small>Catatan: {i.note}</small>}
+        </div>
+      ))}
+
+      <hr />
+
+      <p>
+        <b>Mohon proses sesuai urutan pesanan.</b>
+      </p>
+
+      <small>Dicetak otomatis dari Galaksi Aromatica</small>
+    </div>
+  );
+}function KitchenReceipt({
+  trx,
+  settings
+}: {
+  trx: Transaction | null;
+  settings: SettingsData;
+}) {
+  if (!trx) return null;
+
+  return (
+    <div className={`receipt kitchen-receipt receipt-${settings.receiptSize.replace('mm', '')}`}>
+      <div className="receipt-brand">
+        <Logo compact />
+        <h3>CATATAN BARISTA / KOKI</h3>
+        <p>{settings.storeName}</p>
+        <small>Order untuk bar / dapur</small>
+      </div>
+
+      <hr />
+
+      <div className="rrow">
+        <span>Invoice</span>
+        <b>{trx.invoice}</b>
+      </div>
+
+      <div className="rrow">
+        <span>Tipe Pesanan</span>
+        <b>{trx.orderType}</b>
+      </div>
+
+      {trx.tableNumber && (
+        <div className="rrow">
+          <span>No. Meja</span>
+          <b>{trx.tableNumber}</b>
+        </div>
+      )}
+
+      {trx.customerName && (
+        <div className="rrow">
+          <span>Pelanggan</span>
+          <b>{trx.customerName}</b>
+        </div>
+      )}
+
+      <div className="rrow">
+        <span>Operator</span>
+        <b>{trx.operator}</b>
+      </div>
+
+      <div className="rrow">
+        <span>Waktu</span>
+        <b>{fmt(trx.createdAt)}</b>
+      </div>
+
+      <hr />
+
+      <h3>DAFTAR PESANAN</h3>
+
+      {trx.items.map(i => (
+        <div className="kitchen-item" key={i.cartId}>
+          <b>{i.qty}x {i.name}</b>
+          {i.note && <small>Catatan: {i.note}</small>}
+        </div>
+      ))}
+
+      <hr />
+
+      <p>
+        <b>Mohon proses sesuai urutan pesanan.</b>
+      </p>
+
+      <small>Dicetak otomatis dari Galaksi Aromatica</small>
+    </div>
+  );
+}
+    
 ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
