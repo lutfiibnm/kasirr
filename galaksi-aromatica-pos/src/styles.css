@@ -1343,3 +1343,37 @@ button.save-settings-button {
 button.primary.save-settings-button:hover {
   filter: brightness(1.08) !important;
 }
+/* === STRUK BARISTA / KOKI === */
+.kitchen-receipt {
+  page-break-before: always;
+  break-before: page;
+}
+
+.kitchen-receipt h3 {
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.kitchen-item {
+  text-align: left;
+  border-bottom: 1px dashed #111;
+  padding: 8px 0;
+}
+
+.kitchen-item b {
+  display: block;
+  font-size: 15px;
+}
+
+.kitchen-item small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+@media print {
+  .kitchen-receipt {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+}
