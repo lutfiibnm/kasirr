@@ -965,10 +965,14 @@ function MenuPage({
           </select>
 
           <input
-            type="number"
-            placeholder="Harga"
-            value={form.price || ''}
-            onChange={e => setForm({ ...form, price: Number(e.target.value) })}
+              type="text"
+              inputMode="numeric"
+              placeholder="Harga"
+              value={form.price ? String(form.price) : ''}
+              onChange={e => {
+                const onlyNumber = e.target.value.replace(/\D/g, '');
+                setForm({ ...form, price: Number(onlyNumber) });
+             }}
           />
 
           <textarea placeholder="Deskripsi" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
