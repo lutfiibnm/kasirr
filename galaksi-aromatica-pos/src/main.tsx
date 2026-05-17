@@ -157,7 +157,8 @@ const defaultDb: Db = {
       image: img.kopi1,
       stock: 50,
       active: true,
-      bestSeller: true
+      bestSeller: true,
+      promo: false
     },
     {
       id: 'p2',
@@ -167,7 +168,9 @@ const defaultDb: Db = {
       price: 28000,
       image: img.kopi2,
       stock: 42,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p3',
@@ -177,7 +180,9 @@ const defaultDb: Db = {
       price: 30000,
       image: img.kopi3,
       stock: 38,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p4',
@@ -188,7 +193,8 @@ const defaultDb: Db = {
       image: img.kopi5,
       stock: 35,
       active: true,
-      bestSeller: true
+      bestSeller: true,
+      promo: false
     },
     {
       id: 'p5',
@@ -198,7 +204,9 @@ const defaultDb: Db = {
       price: 22000,
       image: img.kopi4,
       stock: 60,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p6',
@@ -208,7 +216,9 @@ const defaultDb: Db = {
       price: 28000,
       image: img.kopi2,
       stock: 30,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p7',
@@ -218,7 +228,9 @@ const defaultDb: Db = {
       price: 26000,
       image: img.kopi3,
       stock: 24,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p8',
@@ -228,7 +240,9 @@ const defaultDb: Db = {
       price: 32000,
       image: img.kopi1,
       stock: 27,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p9',
@@ -239,6 +253,7 @@ const defaultDb: Db = {
       image: img.kopi5,
       stock: 25,
       active: true,
+      bestSeller: false,
       promo: true
     },
     {
@@ -249,7 +264,9 @@ const defaultDb: Db = {
       price: 26000,
       image: img.snack,
       stock: 18,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p11',
@@ -259,7 +276,9 @@ const defaultDb: Db = {
       price: 38000,
       image: img.food,
       stock: 22,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     },
     {
       id: 'p12',
@@ -269,7 +288,9 @@ const defaultDb: Db = {
       price: 32000,
       image: img.cake,
       stock: 14,
-      active: true
+      active: true,
+      bestSeller: false,
+      promo: false
     }
   ],
   transactions: [],
@@ -306,6 +327,13 @@ function loadDb(): Db {
           saved.operator?.name ||
           defaultDb.settings.operatorName
       },
+      products: Array.isArray(saved.products)
+        ? saved.products.map((p: Product) => ({
+            ...p,
+            bestSeller: !!p.bestSeller,
+            promo: !!p.promo
+          }))
+        : defaultDb.products,
       transactions: saved.transactions || []
     };
   } catch {
@@ -868,7 +896,9 @@ function MenuPage({
     price: 0,
     image: img.kopi1,
     stock: 0,
-    active: true
+    active: true,
+    bestSeller: false,
+    promo: false
   };
 
   const [form, setForm] = React.useState<Product>(blank);
@@ -908,7 +938,7 @@ function MenuPage({
       <div className="page-title">
         <div>
           <h2>Manajemen Menu</h2>
-          <p>Tambah menu, edit harga, hapus menu, dan upload gambar.</p>
+          <p>Tambah menu, edit harga, hapus menu, upload gambar, Best Seller, dan Promo.</p>
         </div>
 
         <button onClick={() => setForm(blank)}>
@@ -925,14 +955,26 @@ function MenuPage({
 
               <div>
                 <b>{p.name}</b>
-                <small>{p.description}</small>
+                <small>
+                  {p.description}
+                  {p.bestSeller ? ' • Best Seller' : ''}
+                  {p.promo ? ' • Promo' : ''}
+                </small>
               </div>
 
               <span>{db.categories.find(c => c.id === p.categoryId)?.name}</span>
               <strong>{money(p.price)}</strong>
               <em>{p.active ? 'Aktif' : 'Nonaktif'}</em>
 
-              <button onClick={() => setForm(p)}>
+              <button
+                onClick={() =>
+                  setForm({
+                    ...p,
+                    bestSeller: !!p.bestSeller,
+                    promo: !!p.promo
+                  })
+                }
+              >
                 <Edit3 />
               </button>
 
@@ -951,12 +993,23 @@ function MenuPage({
           <label className="upload">
             <ImagePlus />
             Ubah / Upload Gambar
-            <input type="file" accept="image/*" onChange={e => readFile(e.target.files?.[0])} />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={e => readFile(e.target.files?.[0])}
+            />
           </label>
 
-          <input placeholder="Nama menu" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+          <input
+            placeholder="Nama menu"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+          />
 
-          <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })}>
+          <select
+            value={form.categoryId}
+            onChange={e => setForm({ ...form, categoryId: e.target.value })}
+          >
             {db.categories.map(c => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -965,17 +1018,21 @@ function MenuPage({
           </select>
 
           <input
-              type="text"
-              inputMode="numeric"
-              placeholder="Harga"
-              value={form.price ? String(form.price) : ''}
-              onChange={e => {
-                const onlyNumber = e.target.value.replace(/\D/g, '');
-                setForm({ ...form, price: Number(onlyNumber) });
-             }}
+            type="text"
+            inputMode="numeric"
+            placeholder="Harga"
+            value={form.price ? String(form.price) : ''}
+            onChange={e => {
+              const onlyNumber = e.target.value.replace(/\D/g, '');
+              setForm({ ...form, price: Number(onlyNumber) });
+            }}
           />
 
-          <textarea placeholder="Deskripsi" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+          <textarea
+            placeholder="Deskripsi"
+            value={form.description}
+            onChange={e => setForm({ ...form, description: e.target.value })}
+          />
 
           <label className="check">
             <input
@@ -984,6 +1041,24 @@ function MenuPage({
               onChange={e => setForm({ ...form, active: e.target.checked })}
             />
             Menu aktif
+          </label>
+
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={!!form.bestSeller}
+              onChange={e => setForm({ ...form, bestSeller: e.target.checked })}
+            />
+            Best Seller
+          </label>
+
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={!!form.promo}
+              onChange={e => setForm({ ...form, promo: e.target.checked })}
+            />
+            Promo
           </label>
 
           <button className="primary" onClick={save}>
@@ -1121,6 +1196,16 @@ function SettingsPage({
     ...db.settings
   });
 
+  const parsePercent = (value: string) => {
+    const cleaned = value.replace(',', '.').replace(/[^\d.]/g, '');
+    return cleaned === '' ? 0 : Number(cleaned);
+  };
+
+  const showPercent = (value: number) => {
+    if (!value) return '';
+    return String(value).replace('.', ',');
+  };
+
   return (
     <section className="page-full card settings-page">
       <div className="page-title">
@@ -1133,37 +1218,61 @@ function SettingsPage({
       <div className="settings-grid">
         <div className="field">
           <label>Nama Cafe</label>
-          <input value={s.storeName} onChange={e => setS({ ...s, storeName: e.target.value })} placeholder="Galaksi Aromatica" />
+          <input
+            value={s.storeName}
+            onChange={e => setS({ ...s, storeName: e.target.value })}
+            placeholder="Galaksi Aromatica"
+          />
           <small>Nama cafe yang tampil di aplikasi dan struk.</small>
         </div>
 
         <div className="field">
           <label>Tagline Cafe</label>
-          <input value={s.subtitle} onChange={e => setS({ ...s, subtitle: e.target.value })} placeholder="Coffee & Eatery" />
+          <input
+            value={s.subtitle}
+            onChange={e => setS({ ...s, subtitle: e.target.value })}
+            placeholder="Coffee & Eatery"
+          />
           <small>Teks kecil di bawah nama cafe.</small>
         </div>
 
         <div className="field">
           <label>Nama Operator / Kasir</label>
-          <input value={s.operatorName} onChange={e => setS({ ...s, operatorName: e.target.value })} placeholder="Lutfi Ibnu Maulana" />
+          <input
+            value={s.operatorName}
+            onChange={e => setS({ ...s, operatorName: e.target.value })}
+            placeholder="Lutfi Ibnu Maulana"
+          />
           <small>Nama ini tampil di header aplikasi dan di struk.</small>
         </div>
 
         <div className="field">
           <label>Alamat Cafe</label>
-          <textarea value={s.address} onChange={e => setS({ ...s, address: e.target.value })} placeholder="Jl. Bintang Terang No. 18, Jakarta" />
+          <textarea
+            value={s.address}
+            onChange={e => setS({ ...s, address: e.target.value })}
+            placeholder="Jl. Bintang Terang No. 18, Jakarta"
+          />
           <small>Alamat yang tampil di struk.</small>
         </div>
 
         <div className="field">
           <label>Nomor Telepon</label>
-          <input value={s.phone} onChange={e => setS({ ...s, phone: e.target.value })} placeholder="(021) 1234-5678" />
+          <input
+            value={s.phone}
+            onChange={e => setS({ ...s, phone: e.target.value })}
+            placeholder="(021) 1234-5678"
+          />
           <small>Nomor telepon yang tampil di struk.</small>
         </div>
 
         <div className="field">
           <label>Footer Struk</label>
-          <input value={s.footer} onChange={e => setS({ ...s, footer: e.target.value })} placeholder="Terima kasih atas kunjungan Anda" />
+          <input
+            value={s.footer}
+            onChange={e => setS({ ...s, footer: e.target.value })}
+            placeholder="Terima kasih atas kunjungan Anda"
+          />
           <small>Kalimat penutup di bagian bawah struk.</small>
         </div>
 
@@ -1187,25 +1296,35 @@ function SettingsPage({
         <div className="field">
           <label>Service Charge (%)</label>
           <input
-            type="number"
-            min="0"
-            value={s.servicePercent}
-            onChange={e => setS({ ...s, servicePercent: Number(e.target.value) })}
-            placeholder="5"
+            type="text"
+            inputMode="decimal"
+            value={showPercent(s.servicePercent)}
+            onChange={e =>
+              setS({
+                ...s,
+                servicePercent: parsePercent(e.target.value)
+              })
+            }
+            placeholder="Contoh: 5 atau 2,5"
           />
-          <small>Isi 0 kalau tidak dipakai.</small>
+          <small>Isi kosong kalau tidak dipakai. Bisa pakai koma, misal 2,5.</small>
         </div>
 
         <div className="field">
           <label>Pajak (%)</label>
           <input
-            type="number"
-            min="0"
-            value={s.taxPercent}
-            onChange={e => setS({ ...s, taxPercent: Number(e.target.value) })}
-            placeholder="10"
+            type="text"
+            inputMode="decimal"
+            value={showPercent(s.taxPercent)}
+            onChange={e =>
+              setS({
+                ...s,
+                taxPercent: parsePercent(e.target.value)
+              })
+            }
+            placeholder="Contoh: 10 atau 2,5"
           />
-          <small>Persentase pajak. Isi 0 kalau tidak dipakai.</small>
+          <small>Pajak bisa pakai koma. Contoh: 2,5 berarti 2,5%.</small>
         </div>
       </div>
 
@@ -1482,3 +1601,9 @@ function KitchenReceipt({
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/kasirr/sw.js').catch(() => {});
+  });
+}
