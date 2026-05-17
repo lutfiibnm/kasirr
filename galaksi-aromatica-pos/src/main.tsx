@@ -104,6 +104,29 @@ const percentLabel = (value?: number) => {
   return String(value).replace('.', ',');
 };
 
+function cleanPercentText(value: string) {
+  let v = value.replace(/[^\d,.]/g, '');
+  v = v.replace(/\./g, ',');
+
+  const parts = v.split(',');
+  if (parts.length <= 1) return parts[0];
+
+  return `${parts[0]},${parts.slice(1).join('')}`;
+}
+
+function parsePercent(value: string) {
+  const cleaned = value.trim().replace(',', '.');
+  if (cleaned === '') return 0;
+
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function numberToText(value?: number) {
+  if (!value) return '';
+  return String(value).replace('.', ',');
+}
+
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 const today = () =>
@@ -131,6 +154,7 @@ const invoiceNo = (count: number) => {
   const y = String(d.getFullYear()).slice(2);
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
+
   return `INV/${y}${m}${day}/${String(count + 1).padStart(5, '0')}`;
 };
 
@@ -368,29 +392,6 @@ function loadDb(): Db {
 
 function saveDb(db: Db) {
   localStorage.setItem('galaksi-pos-db-clean-v2', JSON.stringify(db));
-}
-
-function cleanPercentText(value: string) {
-  let v = value.replace(/[^\d,.]/g, '');
-  v = v.replace(/\./g, ',');
-
-  const parts = v.split(',');
-  if (parts.length <= 1) return parts[0];
-
-  return `${parts[0]},${parts.slice(1).join('')}`;
-}
-
-function parsePercent(value: string) {
-  const cleaned = value.trim().replace(',', '.');
-  if (cleaned === '') return 0;
-
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function numberToText(value?: number) {
-  if (!value) return '';
-  return String(value).replace('.', ',');
 }
 
 function Logo({ compact = false }: { compact?: boolean }) {
@@ -770,9 +771,9 @@ function POS({
                 <img src={p.image} />
 
                 <div className="prod-badges">
-                  {p.bestSeller && <em>Best Seller</em>}
-                  {p.promo && <em>Promo</em>}
-                  {!!p.discountPercent && <em>Diskon {percentLabel(p.discountPercent)}%</em>}
+                  {p.bestSeller && <em>Best</em>}
+                  {p.promo && !p.discountPercent && <em>Promo</em>}
+                  {!!p.discountPercent && <em>-{percentLabel(p.discountPercent)}%</em>}
                 </div>
 
                 <b>{p.name}</b>
@@ -988,9 +989,12 @@ function MenuPage({
   const save = () => {
     if (!form.name || !form.price) return alert('Nama dan harga wajib diisi.');
 
+    const discountValue = parsePercent(discountText);
+
     const fixedProduct: Product = {
       ...form,
-      discountPercent: parsePercent(discountText)
+      promo: form.promo || discountValue > 0,
+      discountPercent: discountValue
     };
 
     patchDb(d => ({
@@ -1025,7 +1029,7 @@ function MenuPage({
       <div className="page-title">
         <div>
           <h2>Manajemen Menu</h2>
-          <p>Tambah menu, edit harga, hapus menu, upload gambar, Best Seller, Promo, dan Diskon.</p>
+          <p>Tambah menu, edit harga, upload gambar, Best Seller, Promo, dan Diskon.</p>
         </div>
 
         <button onClick={resetForm}>
@@ -1123,9 +1127,13 @@ function MenuPage({
           <input
             type="text"
             inputMode="decimal"
-            placeholder="Diskon % contoh: 10 atau 2,5"
+            placeholder="Diskon Promo (%) contoh: 1,2 atau 2,6"
             value={discountText}
-            onChange={e => setDiscountText(cleanPercentText(e.target.value))}
+            onChange={e => {
+              const clean = cleanPercentText(e.target.value);
+              setDiscountText(clean);
+              setForm({ ...form, promo: clean !== '' || form.promo });
+            }}
           />
 
           <textarea
@@ -1160,6 +1168,10 @@ function MenuPage({
             />
             Promo
           </label>
+
+          <small style={{ color: '#806954', lineHeight: 1.4 }}>
+            Kalau isi diskon, Promo otomatis aktif. Bisa pakai koma, misalnya 1,2 atau 2,6.
+          </small>
 
           <button className="primary" onClick={save}>
             {form.id ? 'Simpan Perubahan' : 'Tambah Menu'}
