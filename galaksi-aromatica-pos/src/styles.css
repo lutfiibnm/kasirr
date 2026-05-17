@@ -1402,3 +1402,207 @@ svg {
     margin: 0;
   }
 }
+/* === FIX FINAL: FOTO BALIK RAPI, LAYOUT NGGAK NABRAK, BADGE AMAN === */
+
+.pos-page {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px) !important;
+  gap: 22px !important;
+  align-items: start !important;
+}
+
+.pos-left,
+.cart,
+.menu-table,
+.editor {
+  min-width: 0 !important;
+}
+
+.order-line {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  align-items: end !important;
+}
+
+.search-full,
+.order-line .search {
+  grid-column: 1 / -1 !important;
+  min-width: 0 !important;
+}
+
+.product-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.product-grid .prod,
+.prod {
+  position: relative !important;
+  min-height: 290px !important;
+  height: auto !important;
+  padding-bottom: 14px !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+}
+
+.product-grid .prod > img,
+.prod > img {
+  display: block !important;
+  width: calc(100% - 24px) !important;
+  height: 135px !important;
+  margin: 12px 12px 0 !important;
+  object-fit: cover !important;
+  border-radius: 14px !important;
+}
+
+.product-grid .prod > b,
+.prod > b {
+  display: block !important;
+  margin: 14px 12px 8px !important;
+  padding: 0 !important;
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+  color: #0f0b07 !important;
+}
+
+.product-grid .prod .prod-price,
+.product-grid .prod small.prod-price,
+.prod-price {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  margin: 0 12px !important;
+  padding: 0 !important;
+}
+
+.product-grid .prod .prod-price del,
+.product-grid .prod small.prod-price del,
+.prod-price del {
+  display: block !important;
+  color: #8f6f58 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+.product-grid .prod .prod-price span,
+.product-grid .prod small.prod-price span,
+.prod-price span {
+  display: block !important;
+  color: #7b3f16 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+
+.product-grid .prod > i,
+.prod > i {
+  position: absolute !important;
+  right: 12px !important;
+  bottom: 12px !important;
+}
+
+.product-grid .prod > em,
+.prod > em {
+  display: none !important;
+}
+
+.product-grid .prod .prod-badges,
+.prod-badges {
+  position: absolute !important;
+  left: 18px !important;
+  top: 105px !important;
+  right: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+}
+
+.product-grid .prod .prod-badges em,
+.prod-badges em {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 23px !important;
+  min-width: 52px !important;
+  max-width: 82px !important;
+  padding: 0 9px !important;
+  background: #8b4b19 !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  font-size: 9.5px !important;
+  font-style: normal !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.cart {
+  position: sticky !important;
+  top: 26px !important;
+  z-index: 1 !important;
+}
+
+.modal {
+  z-index: 9999 !important;
+}
+
+.pay-card {
+  position: relative !important;
+  z-index: 10000 !important;
+}
+
+.menu-management {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px) !important;
+  gap: 22px !important;
+  align-items: start !important;
+}
+
+.manage-row {
+  grid-template-columns: 70px minmax(150px, 1fr) 90px 120px 70px 42px !important;
+}
+
+.manage-row button.red {
+  display: none !important;
+}
+
+@media (max-width: 1500px) {
+  .pos-page {
+    grid-template-columns: minmax(0, 1fr) 390px !important;
+  }
+
+  .menu-management {
+    grid-template-columns: minmax(0, 1fr) 390px !important;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+  }
+
+  .manage-row {
+    grid-template-columns: 64px minmax(135px, 1fr) 80px 105px 62px 42px !important;
+  }
+}
+
+@media (max-width: 1250px) {
+  .pos-page,
+  .menu-management {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cart,
+  .editor {
+    position: static !important;
+  }
+
+  .order-line {
+    grid-template-columns: 1fr !important;
+  }
+}
