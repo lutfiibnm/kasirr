@@ -26,6 +26,7 @@ type Product = {
   active: boolean;
   bestSeller?: boolean;
   promo?: boolean;
+  discountPercent?: number;
 };
 
 type CartItem = {
@@ -91,6 +92,17 @@ const money = (n: number) =>
     currency: 'IDR',
     maximumFractionDigits: 0
   }).format(n);
+
+const discountPrice = (price: number, discountPercent?: number) => {
+  const discount = discountPercent || 0;
+  if (discount <= 0) return price;
+  return Math.round(price - price * (discount / 100));
+};
+
+const percentLabel = (value?: number) => {
+  if (!value) return '';
+  return String(value).replace('.', ',');
+};
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -158,7 +170,8 @@ const defaultDb: Db = {
       stock: 50,
       active: true,
       bestSeller: true,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p2',
@@ -170,7 +183,8 @@ const defaultDb: Db = {
       stock: 42,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p3',
@@ -182,7 +196,8 @@ const defaultDb: Db = {
       stock: 38,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p4',
@@ -194,7 +209,8 @@ const defaultDb: Db = {
       stock: 35,
       active: true,
       bestSeller: true,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p5',
@@ -206,7 +222,8 @@ const defaultDb: Db = {
       stock: 60,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p6',
@@ -218,7 +235,8 @@ const defaultDb: Db = {
       stock: 30,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p7',
@@ -230,7 +248,8 @@ const defaultDb: Db = {
       stock: 24,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p8',
@@ -242,7 +261,8 @@ const defaultDb: Db = {
       stock: 27,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p9',
@@ -254,7 +274,8 @@ const defaultDb: Db = {
       stock: 25,
       active: true,
       bestSeller: false,
-      promo: true
+      promo: true,
+      discountPercent: 0
     },
     {
       id: 'p10',
@@ -266,7 +287,8 @@ const defaultDb: Db = {
       stock: 18,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p11',
@@ -278,7 +300,8 @@ const defaultDb: Db = {
       stock: 22,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     },
     {
       id: 'p12',
@@ -290,7 +313,8 @@ const defaultDb: Db = {
       stock: 14,
       active: true,
       bestSeller: false,
-      promo: false
+      promo: false,
+      discountPercent: 0
     }
   ],
   transactions: [],
@@ -331,7 +355,8 @@ function loadDb(): Db {
         ? saved.products.map((p: Product) => ({
             ...p,
             bestSeller: !!p.bestSeller,
-            promo: !!p.promo
+            promo: !!p.promo,
+            discountPercent: Number(p.discountPercent || 0)
           }))
         : defaultDb.products,
       transactions: saved.transactions || []
@@ -343,6 +368,29 @@ function loadDb(): Db {
 
 function saveDb(db: Db) {
   localStorage.setItem('galaksi-pos-db-clean-v2', JSON.stringify(db));
+}
+
+function cleanPercentText(value: string) {
+  let v = value.replace(/[^\d,.]/g, '');
+  v = v.replace(/\./g, ',');
+
+  const parts = v.split(',');
+  if (parts.length <= 1) return parts[0];
+
+  return `${parts[0]},${parts.slice(1).join('')}`;
+}
+
+function parsePercent(value: string) {
+  const cleaned = value.trim().replace(',', '.');
+  if (cleaned === '') return 0;
+
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function numberToText(value?: number) {
+  if (!value) return '';
+  return String(value).replace('.', ',');
 }
 
 function Logo({ compact = false }: { compact?: boolean }) {
@@ -523,7 +571,7 @@ function Login({ db, onLogin }: { db: Db; onLogin: () => void }) {
   const [pin, setPin] = React.useState('');
 
   const submit = () =>
-    pin === db.operator.pin ? onLogin() : alert('PIN salah. Coba 1111.');
+    pin === db.operator.pin ? onLogin() : alert('PIN salah.');
 
   return (
     <div className="login">
@@ -535,14 +583,15 @@ function Login({ db, onLogin }: { db: Db; onLogin: () => void }) {
         <input
           autoFocus
           type="password"
+          inputMode="numeric"
           placeholder="PIN Operator"
           value={pin}
-          onChange={e => setPin(e.target.value)}
+          onChange={e => setPin(e.target.value.replace(/\D/g, ''))}
           onKeyDown={e => e.key === 'Enter' && submit()}
         />
 
         <button onClick={submit}>Masuk</button>
-        <small>PIN demo: 1111</small>
+        <small>PIN awal: 1111. Bisa diganti di Pengaturan.</small>
       </div>
     </div>
   );
@@ -585,6 +634,7 @@ function POS({
   const add = (p: Product) =>
     setCart(c => {
       const found = c.find(i => i.productId === p.id && !i.note);
+      const finalPrice = discountPrice(p.price, p.discountPercent);
 
       return found
         ? c.map(i => (i.cartId === found.cartId ? { ...i, qty: i.qty + 1 } : i))
@@ -595,7 +645,7 @@ function POS({
               productId: p.id,
               name: p.name,
               image: p.image,
-              price: p.price,
+              price: finalPrice,
               qty: 1
             }
           ];
@@ -712,18 +762,32 @@ function POS({
         </div>
 
         <div className="product-grid">
-          {products.map(p => (
-            <button className="prod" key={p.id} onClick={() => add(p)}>
-              <img src={p.image} />
-              {p.bestSeller && <em>Best Seller</em>}
-              {p.promo && <em>Promo</em>}
-              <b>{p.name}</b>
-              <small>{money(p.price)}</small>
-              <i>
-                <Plus size={16} />
-              </i>
-            </button>
-          ))}
+          {products.map(p => {
+            const finalPrice = discountPrice(p.price, p.discountPercent);
+
+            return (
+              <button className="prod" key={p.id} onClick={() => add(p)}>
+                <img src={p.image} />
+
+                <div className="prod-badges">
+                  {p.bestSeller && <em>Best Seller</em>}
+                  {p.promo && <em>Promo</em>}
+                  {!!p.discountPercent && <em>Diskon {percentLabel(p.discountPercent)}%</em>}
+                </div>
+
+                <b>{p.name}</b>
+
+                <small>
+                  {!!p.discountPercent && <del>{money(p.price)}</del>}
+                  {money(finalPrice)}
+                </small>
+
+                <i>
+                  <Plus size={16} />
+                </i>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -782,12 +846,12 @@ function POS({
           </p>
 
           <p>
-            <span>Service ({String(db.settings.servicePercent).replace('.', ',')}%)</span>
+            <span>Service ({percentLabel(db.settings.servicePercent)}%)</span>
             <b>{money(service)}</b>
           </p>
 
           <p>
-            <span>Pajak ({String(db.settings.taxPercent).replace('.', ',')}%)</span>
+            <span>Pajak ({percentLabel(db.settings.taxPercent)}%)</span>
             <b>{money(tax)}</b>
           </p>
 
@@ -898,22 +962,45 @@ function MenuPage({
     stock: 0,
     active: true,
     bestSeller: false,
-    promo: false
+    promo: false,
+    discountPercent: 0
   };
 
   const [form, setForm] = React.useState<Product>(blank);
+  const [discountText, setDiscountText] = React.useState('');
+
+  const editProduct = (p: Product) => {
+    setForm({
+      ...p,
+      bestSeller: !!p.bestSeller,
+      promo: !!p.promo,
+      discountPercent: Number(p.discountPercent || 0)
+    });
+
+    setDiscountText(numberToText(p.discountPercent));
+  };
+
+  const resetForm = () => {
+    setForm(blank);
+    setDiscountText('');
+  };
 
   const save = () => {
     if (!form.name || !form.price) return alert('Nama dan harga wajib diisi.');
 
+    const fixedProduct: Product = {
+      ...form,
+      discountPercent: parsePercent(discountText)
+    };
+
     patchDb(d => ({
       ...d,
-      products: form.id
-        ? d.products.map(p => (p.id === form.id ? form : p))
-        : [{ ...form, id: uid() }, ...d.products]
+      products: fixedProduct.id
+        ? d.products.map(p => (p.id === fixedProduct.id ? fixedProduct : p))
+        : [{ ...fixedProduct, id: uid() }, ...d.products]
     }));
 
-    setForm(blank);
+    resetForm();
   };
 
   const del = (id: string) => {
@@ -938,10 +1025,10 @@ function MenuPage({
       <div className="page-title">
         <div>
           <h2>Manajemen Menu</h2>
-          <p>Tambah menu, edit harga, hapus menu, upload gambar, Best Seller, dan Promo.</p>
+          <p>Tambah menu, edit harga, hapus menu, upload gambar, Best Seller, Promo, dan Diskon.</p>
         </div>
 
-        <button onClick={() => setForm(blank)}>
+        <button onClick={resetForm}>
           <Plus />
           Menu Baru
         </button>
@@ -959,22 +1046,27 @@ function MenuPage({
                   {p.description}
                   {p.bestSeller ? ' • Best Seller' : ''}
                   {p.promo ? ' • Promo' : ''}
+                  {p.discountPercent ? ` • Diskon ${percentLabel(p.discountPercent)}%` : ''}
                 </small>
               </div>
 
               <span>{db.categories.find(c => c.id === p.categoryId)?.name}</span>
-              <strong>{money(p.price)}</strong>
+
+              <strong>
+                {p.discountPercent ? (
+                  <>
+                    <del>{money(p.price)}</del>
+                    <br />
+                    {money(discountPrice(p.price, p.discountPercent))}
+                  </>
+                ) : (
+                  money(p.price)
+                )}
+              </strong>
+
               <em>{p.active ? 'Aktif' : 'Nonaktif'}</em>
 
-              <button
-                onClick={() =>
-                  setForm({
-                    ...p,
-                    bestSeller: !!p.bestSeller,
-                    promo: !!p.promo
-                  })
-                }
-              >
+              <button onClick={() => editProduct(p)}>
                 <Edit3 />
               </button>
 
@@ -1026,6 +1118,14 @@ function MenuPage({
               const onlyNumber = e.target.value.replace(/\D/g, '');
               setForm({ ...form, price: Number(onlyNumber) });
             }}
+          />
+
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder="Diskon % contoh: 10 atau 2,5"
+            value={discountText}
+            onChange={e => setDiscountText(cleanPercentText(e.target.value))}
           />
 
           <textarea
@@ -1196,10 +1296,7 @@ function SettingsPage({
     ...db.settings
   });
 
-  const numberToText = (value: number) => {
-    if (!value) return '';
-    return String(value).replace('.', ',');
-  };
+  const [pinText, setPinText] = React.useState('');
 
   const [serviceText, setServiceText] = React.useState(
     numberToText(db.settings.servicePercent)
@@ -1209,26 +1306,12 @@ function SettingsPage({
     numberToText(db.settings.taxPercent)
   );
 
-  const cleanPercentText = (value: string) => {
-    let v = value.replace(/[^\d,.]/g, '');
-    v = v.replace(/\./g, ',');
-
-    const parts = v.split(',');
-    if (parts.length <= 1) return parts[0];
-
-    return `${parts[0]},${parts.slice(1).join('')}`;
-  };
-
-  const parsePercent = (value: string) => {
-    const cleaned = value.trim().replace(',', '.');
-
-    if (cleaned === '') return 0;
-
-    const n = Number(cleaned);
-    return Number.isFinite(n) ? n : 0;
-  };
-
   const saveSettings = () => {
+    if (pinText && pinText.length < 4) {
+      alert('PIN minimal 4 digit.');
+      return;
+    }
+
     const fixedSettings: SettingsData = {
       ...s,
       servicePercent: parsePercent(serviceText),
@@ -1240,11 +1323,14 @@ function SettingsPage({
       settings: fixedSettings,
       operator: {
         ...d.operator,
-        name: fixedSettings.operatorName
+        name: fixedSettings.operatorName,
+        pin: pinText ? pinText : d.operator.pin
       }
     }));
 
     setS(fixedSettings);
+    setPinText('');
+    alert('Pengaturan berhasil disimpan.');
   };
 
   return (
@@ -1252,7 +1338,7 @@ function SettingsPage({
       <div className="page-title">
         <div>
           <h2>Pengaturan Cafe</h2>
-          <p>Atur data cafe, nama operator, struk, pajak, service, dan printer.</p>
+          <p>Atur data cafe, nama operator, PIN, struk, pajak, service, dan printer.</p>
         </div>
       </div>
 
@@ -1285,6 +1371,21 @@ function SettingsPage({
             placeholder="Lutfi Ibnu Maulana"
           />
           <small>Nama ini tampil di header aplikasi dan di struk.</small>
+        </div>
+
+        <div className="field">
+          <label>Ganti PIN Login</label>
+          <input
+            type="password"
+            inputMode="numeric"
+            value={pinText}
+            onChange={e => {
+              const onlyNumber = e.target.value.replace(/\D/g, '');
+              setPinText(onlyNumber);
+            }}
+            placeholder="Kosongkan kalau tidak diganti"
+          />
+          <small>PIN disimpan lokal di browser. Aman buat demo, belum aman buat sistem asli.</small>
         </div>
 
         <div className="field">
