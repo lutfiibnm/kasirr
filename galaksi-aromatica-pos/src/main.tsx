@@ -782,12 +782,12 @@ function POS({
           </p>
 
           <p>
-            <span>Service ({db.settings.servicePercent}%)</span>
+            <span>Service ({String(db.settings.servicePercent).replace('.', ',')}%)</span>
             <b>{money(service)}</b>
           </p>
 
           <p>
-            <span>Pajak ({db.settings.taxPercent}%)</span>
+            <span>Pajak ({String(db.settings.taxPercent).replace('.', ',')}%)</span>
             <b>{money(tax)}</b>
           </p>
 
@@ -1196,14 +1196,55 @@ function SettingsPage({
     ...db.settings
   });
 
-  const parsePercent = (value: string) => {
-    const cleaned = value.replace(',', '.').replace(/[^\d.]/g, '');
-    return cleaned === '' ? 0 : Number(cleaned);
-  };
-
-  const showPercent = (value: number) => {
+  const numberToText = (value: number) => {
     if (!value) return '';
     return String(value).replace('.', ',');
+  };
+
+  const [serviceText, setServiceText] = React.useState(
+    numberToText(db.settings.servicePercent)
+  );
+
+  const [taxText, setTaxText] = React.useState(
+    numberToText(db.settings.taxPercent)
+  );
+
+  const cleanPercentText = (value: string) => {
+    let v = value.replace(/[^\d,.]/g, '');
+    v = v.replace(/\./g, ',');
+
+    const parts = v.split(',');
+    if (parts.length <= 1) return parts[0];
+
+    return `${parts[0]},${parts.slice(1).join('')}`;
+  };
+
+  const parsePercent = (value: string) => {
+    const cleaned = value.trim().replace(',', '.');
+
+    if (cleaned === '') return 0;
+
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const saveSettings = () => {
+    const fixedSettings: SettingsData = {
+      ...s,
+      servicePercent: parsePercent(serviceText),
+      taxPercent: parsePercent(taxText)
+    };
+
+    patchDb(d => ({
+      ...d,
+      settings: fixedSettings,
+      operator: {
+        ...d.operator,
+        name: fixedSettings.operatorName
+      }
+    }));
+
+    setS(fixedSettings);
   };
 
   return (
@@ -1298,13 +1339,8 @@ function SettingsPage({
           <input
             type="text"
             inputMode="decimal"
-            value={showPercent(s.servicePercent)}
-            onChange={e =>
-              setS({
-                ...s,
-                servicePercent: parsePercent(e.target.value)
-              })
-            }
+            value={serviceText}
+            onChange={e => setServiceText(cleanPercentText(e.target.value))}
             placeholder="Contoh: 5 atau 2,5"
           />
           <small>Isi kosong kalau tidak dipakai. Bisa pakai koma, misal 2,5.</small>
@@ -1315,13 +1351,8 @@ function SettingsPage({
           <input
             type="text"
             inputMode="decimal"
-            value={showPercent(s.taxPercent)}
-            onChange={e =>
-              setS({
-                ...s,
-                taxPercent: parsePercent(e.target.value)
-              })
-            }
+            value={taxText}
+            onChange={e => setTaxText(cleanPercentText(e.target.value))}
             placeholder="Contoh: 10 atau 2,5"
           />
           <small>Pajak bisa pakai koma. Contoh: 2,5 berarti 2,5%.</small>
@@ -1336,16 +1367,7 @@ function SettingsPage({
       >
         <button
           type="button"
-          onClick={() =>
-            patchDb(d => ({
-              ...d,
-              settings: s,
-              operator: {
-                ...d.operator,
-                name: s.operatorName
-              }
-            }))
-          }
+          onClick={saveSettings}
           style={{
             width: '100%',
             minHeight: '64px',
