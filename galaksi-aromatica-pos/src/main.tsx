@@ -803,7 +803,7 @@ function POS({
 
                 <div className="prod-badges">
                   {p.bestSeller && <em>Best</em>}
-                  {p.promo && !p.discountPercent && <em>Promo</em>}
+                  {p.promo && <em>Promo</em>}
                   {!!p.discountPercent && <em>-{percentLabel(p.discountPercent)}%</em>}
                 </div>
 
