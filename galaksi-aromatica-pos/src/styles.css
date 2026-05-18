@@ -1606,3 +1606,85 @@ svg {
     grid-template-columns: 1fr !important;
   }
 }
+/* === FIX STRUK: LOGO, ALAMAT, FOOTER, DAN BY LUTFIIBNM RATA TENGAH === */
+
+.receipt .receipt-brand,
+.receipt .receipt-brand *,
+.receipt-center {
+  text-align: center !important;
+}
+
+.receipt .receipt-brand {
+  width: 100% !important;
+  display: block !important;
+  margin: 0 auto 8px !important;
+}
+
+.receipt .receipt-brand .logo,
+.receipt .receipt-brand .logo.compact {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto 4px !important;
+  width: 100% !important;
+}
+
+.receipt .receipt-brand h3 {
+  text-align: center !important;
+  margin: 4px 0 2px !important;
+  font-weight: 900 !important;
+}
+
+.receipt .receipt-brand p {
+  text-align: center !important;
+  margin: 2px 0 !important;
+}
+
+.receipt .receipt-brand small {
+  display: block !important;
+  text-align: center !important;
+  margin: 2px auto 6px !important;
+}
+
+/* Alamat toko di bawah logo */
+.receipt > p:first-of-type {
+  text-align: center !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 6px auto 8px !important;
+  line-height: 1.35 !important;
+}
+
+/* Footer ucapan terima kasih */
+.receipt > hr:nth-last-of-type(1) + p,
+.receipt p:has(b) {
+  text-align: center !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 8px auto !important;
+  line-height: 1.35 !important;
+}
+
+/* by lutfiibnm paling bawah */
+.receipt > small:last-child {
+  display: block !important;
+  text-align: center !important;
+  width: 100% !important;
+  margin: 6px auto 0 !important;
+}
+
+/* Biar tulisan invoice tetap kiri sesuai struk kasir */
+.receipt h3:not(.receipt-brand h3) {
+  text-align: left !important;
+}
+
+/* Khusus judul invoice pelanggan kalau mau tetap kiri */
+.receipt > h3 {
+  text-align: left !important;
+}
+/* Cadangan kalau browser nggak baca :has() */
+.receipt p b {
+  display: block !important;
+  text-align: center !important;
+  width: 100% !important;
+}
