@@ -134,7 +134,7 @@ function cleanPercentText(value: string) {
   const parts = v.split(',');
   if (parts.length <= 1) return parts[0];
 
-  return `${parts\\\[0]},${parts.slice(1).join('')}`;
+  return `${parts[0]},${parts.slice(1).join('')}`;
 }
 
 function parsePercent(value: string) {
@@ -442,12 +442,11 @@ function Logo({ compact = false }: { compact?: boolean }) {
 
       {!compact && (
         <div>
- 
+          <b>
             Galaksi
- 
-
+            <br />
             Aromatica
- 
+          </b>
           <span>Coffee & Eatery</span>
           <em>by lutfiibnm</em>
         </div>
@@ -532,7 +531,7 @@ function App() {
             <Bell />
             <strong>{notice.title}</strong>
             <p>{notice.message}</p>
-            {money(notice.amount)}
+            <b>{money(notice.amount)}</b>
             <small>{notice.time}</small>
           </div>
         ) : (
@@ -543,8 +542,7 @@ function App() {
 
         <div className="side-footer">
           Galaksi Aromatica
- 
-
+          <br />
           <span>by lutfiibnm</span>
         </div>
       </aside>
@@ -560,7 +558,7 @@ function App() {
             <span>{tick}</span>
 
             <div>
-              {db.settings.operatorName}
+              <b>{db.settings.operatorName}</b>
               <small>Operator</small>
             </div>
 
@@ -808,16 +806,16 @@ function POS({
                   {!!p.discountPercent && <em>-{percentLabel(p.discountPercent)}%</em>}
                   {p.promo && !p.discountPercent && <em>Promo</em>}
                 </div>
-                {p.name}
+                <b>{p.name}</b>
 
                 <small className="prod-price">
-                  {!!p.discountPercent && {money(p.price)}}
+                  {!!p.discountPercent && <del>{money(p.price)}</del>}
                   <span>{money(finalPrice)}</span>
                 </small>
 
- 
+                <i>
                   <Plus size={16} />
- 
+                </i>
               </button>
             );
           })}
@@ -839,7 +837,7 @@ function POS({
               <img src={i.image} />
 
               <div className="cart-info">
-                {i.name}
+                <b>{i.name}</b>
                 <input
                   value={i.note || ''}
                   onChange={e =>
@@ -875,22 +873,22 @@ function POS({
         <div className="totalbox">
           <p>
             <span>Subtotal</span>
-            {money(subtotal)}
+            <b>{money(subtotal)}</b>
           </p>
 
           <p>
             <span>Service ({percentLabel(db.settings.servicePercent)}%)</span>
-            {money(service)}
+            <b>{money(service)}</b>
           </p>
 
           <p>
             <span>Pajak ({percentLabel(db.settings.taxPercent)}%)</span>
-            {money(tax)}
+            <b>{money(tax)}</b>
           </p>
 
           <h3>
             <span>TOTAL</span>
-            {money(total)}
+            <b>{money(total)}</b>
           </h3>
         </div>
 
@@ -945,7 +943,7 @@ function POS({
                 </label>
 
                 <p>
-                  Kembalian: {money(change)}
+                  Kembalian: <b>{money(change)}</b>
                 </p>
 
                 <button className="primary wide" onClick={finishCash}>
@@ -958,7 +956,7 @@ function POS({
                   <QrCode size={150} />
                 </div>
 
-                QRIS Galaksi Aromatica
+                <b>QRIS Galaksi Aromatica</b>
                 <small>NMID: ID102509503903781</small>
 
                 <p>
@@ -1077,7 +1075,7 @@ function MenuPage({
               <img src={p.image} />
 
               <div>
-                {p.name}
+                <b>{p.name}</b>
                 <small>
                   {p.description}
                   {p.bestSeller ? ' • Best Seller' : ''}
@@ -1091,9 +1089,8 @@ function MenuPage({
               <strong>
                 {p.discountPercent ? (
                   <>
-                    {money(p.price)}
- 
-
+                    <del>{money(p.price)}</del>
+                    <br />
                     {money(discountPrice(p.price, p.discountPercent))}
                   </>
                 ) : (
@@ -1243,7 +1240,7 @@ function HistoryPage({
         <div className="table">
           {db.transactions.map(t => (
             <div className="tr" key={t.id}>
-              {t.invoice}
+              <b>{t.invoice}</b>
               <span>{fmt(t.createdAt)}</span>
               <span>
                 {t.orderType}
@@ -1294,22 +1291,22 @@ function SalesPage({ db }: { db: Db }) {
 
       <div className="stats">
         <span>
-          {money(total)}
+          <b>{money(total)}</b>
           <small>Total Penjualan</small>
         </span>
 
         <span>
-          {paid.length}
+          <b>{paid.length}</b>
           <small>Transaksi</small>
         </span>
 
         <span>
-          {money(avg)}
+          <b>{money(avg)}</b>
           <small>Rata-rata</small>
         </span>
 
         <span>
-          {best}
+          <b>{best}</b>
           <small>Best Seller</small>
         </span>
       </div>
@@ -1319,9 +1316,9 @@ function SalesPage({ db }: { db: Db }) {
       ) : (
         <div className="bars big">
           {bars.map((b, i) => (
-            <i key={i} style={{ height: `${30 + (b / max) \\\* 220}px` }}>
+            <i key={i} style={{ height: `${30 + (b / max) * 220}px` }}>
               <small>{i + 8}:00</small>
- 
+            </i>
           ))}
         </div>
       )}
@@ -1568,43 +1565,42 @@ function Receipt({
 
       <p>
         {settings.address}
- 
-
+        <br />
         {settings.phone}
       </p>
 
       <hr />
 
       <h3>INVOICE PELANGGAN</h3>
-      {trx.invoice}
+      <b>{trx.invoice}</b>
 
       <div className="rrow">
         <span>Tipe Pesanan</span>
-        {trx.orderType}
+        <b>{trx.orderType}</b>
       </div>
 
       {trx.tableNumber && (
         <div className="rrow">
           <span>No. Meja</span>
-          {trx.tableNumber}
+          <b>{trx.tableNumber}</b>
         </div>
       )}
 
       {trx.customerName && (
         <div className="rrow">
           <span>Pelanggan</span>
-          {trx.customerName}
+          <b>{trx.customerName}</b>
         </div>
       )}
 
       <div className="rrow">
         <span>Operator</span>
-        {trx.operator}
+        <b>{trx.operator}</b>
       </div>
 
       <div className="rrow">
         <span>Tanggal</span>
-        {fmt(trx.createdAt)}
+        <b>{fmt(trx.createdAt)}</b>
       </div>
 
       <hr />
@@ -1615,9 +1611,9 @@ function Receipt({
             {i.name}
             {i.note && <small>Catatan: {i.note}</small>}
           </span>
- 
+          <b>
             {i.qty} x {money(i.price)}
- 
+          </b>
           <strong>{money(i.price * i.qty)}</strong>
         </div>
       ))}
@@ -1626,52 +1622,52 @@ function Receipt({
 
       <div className="rrow">
         <span>Subtotal</span>
-        {money(trx.subtotal)}
+        <b>{money(trx.subtotal)}</b>
       </div>
 
       <div className="rrow">
         <span>Service</span>
-        {money(trx.service)}
+        <b>{money(trx.service)}</b>
       </div>
 
       <div className="rrow">
         <span>Pajak</span>
-        {money(trx.tax)}
+        <b>{money(trx.tax)}</b>
       </div>
 
       <div className="rgrand">
         <span>TOTAL</span>
-        {money(trx.total)}
+        <b>{money(trx.total)}</b>
       </div>
 
       {trx.amountPaid !== undefined && (
         <div className="rrow">
           <span>Bayar</span>
-          {money(trx.amountPaid)}
+          <b>{money(trx.amountPaid)}</b>
         </div>
       )}
 
       {trx.change !== undefined && (
         <div className="rrow">
           <span>Kembalian</span>
-          {money(trx.change)}
+          <b>{money(trx.change)}</b>
         </div>
       )}
 
       <div className="rrow">
         <span>Metode Pembayaran</span>
-        {trx.method.toUpperCase()}
+        <b>{trx.method.toUpperCase()}</b>
       </div>
 
       <div className="rrow">
         <span>Status Pembayaran</span>
-        <b className="paid">LUNAS
+        <b className="paid">LUNAS</b>
       </div>
 
       <hr />
 
       <p>
-        {settings.footer}
+        <b>{settings.footer}</b>
       </p>
 
       <small>by lutfiibnm</small>
@@ -1707,36 +1703,36 @@ function KitchenReceipt({
 
       <div className="rrow">
         <span>Invoice</span>
-        {trx.invoice}
+        <b>{trx.invoice}</b>
       </div>
 
       <div className="rrow">
         <span>Tipe Pesanan</span>
-        {trx.orderType}
+        <b>{trx.orderType}</b>
       </div>
 
       {trx.tableNumber && (
         <div className="rrow">
           <span>No. Meja</span>
-          {trx.tableNumber}
+          <b>{trx.tableNumber}</b>
         </div>
       )}
 
       {trx.customerName && (
         <div className="rrow">
           <span>Pelanggan</span>
-          {trx.customerName}
+          <b>{trx.customerName}</b>
         </div>
       )}
 
       <div className="rrow">
         <span>Operator</span>
-        {trx.operator}
+        <b>{trx.operator}</b>
       </div>
 
       <div className="rrow">
         <span>Waktu</span>
-        {fmt(trx.createdAt)}
+        <b>{fmt(trx.createdAt)}</b>
       </div>
 
       <hr />
@@ -1753,9 +1749,9 @@ function KitchenReceipt({
             padding: '8px 0'
           }}
         >
- 
+          <b>
             {i.qty}x {i.name}
- 
+          </b>
           {i.note && <small>Catatan: {i.note}</small>}
         </div>
       ))}
@@ -1763,7 +1759,7 @@ function KitchenReceipt({
       <hr />
 
       <p>
-        Mohon proses sesuai urutan pesanan.
+        <b>Mohon proses sesuai urutan pesanan.</b>
       </p>
 
       <small>Dicetak otomatis dari Galaksi Aromatica</small>
