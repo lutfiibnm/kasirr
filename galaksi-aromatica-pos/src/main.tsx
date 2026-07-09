@@ -10,6 +10,7 @@ import {
   ListOrdered,
   LogOut,
   Minus,
+  Package,
   Plus,
   Printer,
   QrCode,
@@ -23,7 +24,7 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-type View = 'pos' | 'menu' | 'history' | 'sales' | 'settings';
+type View = 'pos' | 'menu' | 'history' | 'sales' | 'settings' | 'bahanBaku' | 'stokTransaksi';
 type OrderType = 'Dine In' | 'Take Away';
 type PaymentMethod = 'cash' | 'qris';
 type PaymentStatus = 'pending' | 'paid';
@@ -94,10 +95,33 @@ type SettingsData = {
   servicePercent: number;
 };
 
+type BahanBaku = {
+  id: string;
+  nama: string;
+  satuan: string;
+  harga_beli: number;
+  harga_jual?: number;
+  stok: number;
+  minimal_stok: number;
+  supplier?: string;
+  created_at: string;
+};
+
+type StokTransaksi = {
+  id: string;
+  bahanBakuId: string;
+  jenis: 'masuk' | 'keluar';
+  jumlah: number;
+  keterangan?: string;
+  created_at: string;
+};
+
 type Db = {
   operator: Operator;
   categories: Category[];
   products: Product[];
+  bahanBaku: BahanBaku[];
+  stokTransaksi: StokTransaksi[];
   transactions: Transaction[];
   settings: SettingsData;
 };
@@ -372,6 +396,53 @@ const defaultDb: Db = {
       discountPercent: 0
     }
   ],
+  bahanBaku: [
+    {
+      id: 'bb1',
+      nama: 'Kopi Arabica',
+      satuan: 'kg',
+      harga_beli: 120000,
+      harga_jual: 180000,
+      stok: 10,
+      minimal_stok: 2,
+      supplier: 'PT Kopi Nusantara',
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'bb2',
+      nama: 'Susu UHT Full Cream',
+      satuan: 'liter',
+      harga_beli: 18000,
+      harga_jual: 25000,
+      stok: 20,
+      minimal_stok: 5,
+      supplier: 'Greenfields',
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'bb3',
+      nama: 'Gula Aren',
+      satuan: 'kg',
+      harga_beli: 25000,
+      harga_jual: 35000,
+      stok: 8,
+      minimal_stok: 3,
+      supplier: 'Gula Aren Asli',
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'bb4',
+      nama: 'Cokelat Bubuk',
+      satuan: 'kg',
+      harga_beli: 45000,
+      harga_jual: 65000,
+      stok: 5,
+      minimal_stok: 2,
+      supplier: 'Cocoa Ind',
+      created_at: new Date().toISOString()
+    }
+  ],
+  stokTransaksi: [],
   transactions: [],
   settings: {
     storeName: 'Galaksi Aromatica',
@@ -414,6 +485,8 @@ function loadDb(): Db {
             discountPercent: Number(p.discountPercent || 0)
           }))
         : defaultDb.products,
+      bahanBaku: Array.isArray(saved.bahanBaku) ? saved.bahanBaku : defaultDb.bahanBaku,
+      stokTransaksi: Array.isArray(saved.stokTransaksi) ? saved.stokTransaksi : [],
       transactions: saved.transactions || []
     };
   } catch {
@@ -510,6 +583,11 @@ function App() {
             Menu
           </button>
 
+          <button className={view === 'bahanBaku' ? 'active' : ''} onClick={() => setView('bahanBaku')}>
+            <Package />
+            Bahan Baku
+          </button>
+
           <button className={view === 'history' ? 'active' : ''} onClick={() => setView('history')}>
             <ListOrdered />
             Riwayat Transaksi
@@ -584,6 +662,7 @@ function App() {
         )}
 
         {view === 'menu' && <MenuPage db={db} patchDb={patchDb} />}
+        {view === 'bahanBaku' && <BahanBakuPage db={db} patchDb={patchDb} />}
         {view === 'history' && <HistoryPage db={db} printTransaction={printTransaction} />}
         {view === 'sales' && <SalesPage db={db} />}
         {view === 'settings' && <SettingsPage db={db} patchDb={patchDb} />}
@@ -1215,6 +1294,320 @@ function MenuPage({
         </div>
       </div>
     </section>
+  );
+}
+
+// ============ KOMPONEN BAHAN BAKU ============
+
+function BahanBakuPage({
+  db,
+  patchDb
+}: {
+  db: Db;
+  patchDb: (fn: (d: Db) => Db) => void;
+}) {
+  const blank: BahanBaku = {
+    id: '',
+    nama: '',
+    satuan: 'kg',
+    harga_beli: 0,
+    harga_jual: 0,
+    stok: 0,
+    minimal_stok: 0,
+    supplier: '',
+    created_at: new Date().toISOString()
+  };
+
+  const [form, setForm] = React.useState<BahanBaku>(blank);
+  const [view, setView] = React.useState<'list' | 'form' | 'stok'>('list');
+  const [selectedBahan, setSelectedBahan] = React.useState<BahanBaku | null>(null);
+  const [stokJumlah, setStokJumlah] = React.useState('');
+  const [stokJenis, setStokJenis] = React.useState<'masuk' | 'keluar'>('masuk');
+  const [keterangan, setKeterangan] = React.useState('');
+
+  const edit = (item: BahanBaku) => {
+    setForm(item);
+    setView('form');
+  };
+
+  const resetForm = () => {
+    setForm(blank);
+    setView('list');
+  };
+
+  const save = () => {
+    if (!form.nama || !form.harga_beli) {
+      return alert('Nama dan Harga Beli wajib diisi.');
+    }
+
+    patchDb(d => ({
+      ...d,
+      bahanBaku: form.id
+        ? d.bahanBaku.map(b => (b.id === form.id ? { ...form, created_at: b.created_at } : b))
+        : [{ ...form, id: uid(), created_at: new Date().toISOString() }, ...d.bahanBaku]
+    }));
+
+    resetForm();
+  };
+
+  const del = (id: string) => {
+    if (confirm('Hapus bahan baku ini?')) {
+      patchDb(d => ({
+        ...d,
+        bahanBaku: d.bahanBaku.filter(b => b.id !== id)
+      }));
+    }
+  };
+
+  const openStokForm = (item: BahanBaku) => {
+    setSelectedBahan(item);
+    setStokJumlah('');
+    setStokJenis('masuk');
+    setKeterangan('');
+    setView('stok');
+  };
+
+  const saveStok = () => {
+    if (!selectedBahan) return;
+    const jumlah = Number(stokJumlah.replace(',', '.'));
+    if (!jumlah || jumlah <= 0) {
+      return alert('Masukkan jumlah yang valid.');
+    }
+
+    const newStok = stokJenis === 'masuk' 
+      ? selectedBahan.stok + jumlah 
+      : selectedBahan.stok - jumlah;
+
+    if (newStok < 0) {
+      return alert('Stok tidak bisa negatif!');
+    }
+
+    const transaksi: StokTransaksi = {
+      id: uid(),
+      bahanBakuId: selectedBahan.id,
+      jenis: stokJenis,
+      jumlah: jumlah,
+      keterangan: keterangan || undefined,
+      created_at: new Date().toISOString()
+    };
+
+    patchDb(d => ({
+      ...d,
+      bahanBaku: d.bahanBaku.map(b => 
+        b.id === selectedBahan.id 
+          ? { ...b, stok: newStok }
+          : b
+      ),
+      stokTransaksi: [transaksi, ...d.stokTransaksi]
+    }));
+
+    setView('list');
+    setSelectedBahan(null);
+  };
+
+  if (view === 'form') {
+    return (
+      <div className="page-full card menu-page" style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <div className="page-title">
+          <div>
+            <h2>{form.id ? 'Edit Bahan Baku' : 'Tambah Bahan Baku'}</h2>
+          </div>
+          <button onClick={resetForm}><X /> Batal</button>
+        </div>
+
+        <div className="settings-grid" style={{ gridTemplateColumns: '1fr' }}>
+          <div className="field">
+            <label>Nama Bahan Baku *</label>
+            <input value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} />
+          </div>
+
+          <div className="field">
+            <label>Satuan</label>
+            <select value={form.satuan} onChange={e => setForm({ ...form, satuan: e.target.value })}>
+              <option value="kg">Kilogram (kg)</option>
+              <option value="gram">Gram (g)</option>
+              <option value="liter">Liter (L)</option>
+              <option value="ml">Mililiter (ml)</option>
+              <option value="pcs">Pcs</option>
+              <option value="bungkus">Bungkus</option>
+            </select>
+          </div>
+
+          <div className="field">
+            <label>Harga Beli (per satuan) *</label>
+            <input 
+              type="text" 
+              inputMode="numeric"
+              value={form.harga_beli || ''} 
+              onChange={e => setForm({ ...form, harga_beli: Number(e.target.value.replace(/\D/g, '')) })} 
+            />
+          </div>
+
+          <div className="field">
+            <label>Harga Jual (opsional)</label>
+            <input 
+              type="text" 
+              inputMode="numeric"
+              value={form.harga_jual || ''} 
+              onChange={e => setForm({ ...form, harga_jual: Number(e.target.value.replace(/\D/g, '')) })} 
+            />
+          </div>
+
+          <div className="field">
+            <label>Stok Awal</label>
+            <input 
+              type="text" 
+              inputMode="decimal"
+              value={form.stok || ''} 
+              onChange={e => setForm({ ...form, stok: Number(e.target.value.replace(',', '.')) })} 
+            />
+          </div>
+
+          <div className="field">
+            <label>Minimal Stok (peringatan)</label>
+            <input 
+              type="text" 
+              inputMode="decimal"
+              value={form.minimal_stok || ''} 
+              onChange={e => setForm({ ...form, minimal_stok: Number(e.target.value.replace(',', '.')) })} 
+            />
+          </div>
+
+          <div className="field">
+            <label>Supplier</label>
+            <input value={form.supplier || ''} onChange={e => setForm({ ...form, supplier: e.target.value })} />
+          </div>
+
+          <button className="primary" onClick={save} style={{ marginTop: '20px' }}>
+            {form.id ? 'Simpan Perubahan' : 'Tambah Bahan Baku'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'stok' && selectedBahan) {
+    return (
+      <div className="page-full card menu-page" style={{ maxWidth: '500px', margin: '0 auto' }}>
+        <div className="page-title">
+          <div>
+            <h2>Update Stok: {selectedBahan.nama}</h2>
+            <p>Stok saat ini: <b>{selectedBahan.stok} {selectedBahan.satuan}</b></p>
+          </div>
+          <button onClick={() => { setView('list'); setSelectedBahan(null); }}><X /> Batal</button>
+        </div>
+
+        <div className="settings-grid" style={{ gridTemplateColumns: '1fr' }}>
+          <div className="field">
+            <label>Jenis Transaksi</label>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                className={stokJenis === 'masuk' ? 'primary' : ''} 
+                onClick={() => setStokJenis('masuk')}
+                style={{ flex: 1 }}
+              >
+                Stok Masuk (+)
+              </button>
+              <button 
+                className={stokJenis === 'keluar' ? 'danger' : ''} 
+                onClick={() => setStokJenis('keluar')}
+                style={{ flex: 1 }}
+              >
+                Stok Keluar (-)
+              </button>
+            </div>
+          </div>
+
+          <div className="field">
+            <label>Jumlah</label>
+            <input 
+              type="text" 
+              inputMode="decimal"
+              value={stokJumlah} 
+              onChange={e => setStokJumlah(e.target.value.replace(',', '.'))}
+              placeholder="Masukkan jumlah..."
+            />
+          </div>
+
+          <div className="field">
+            <label>Keterangan (opsional)</label>
+            <input 
+              value={keterangan} 
+              onChange={e => setKeterangan(e.target.value)}
+              placeholder="Contoh: Pembelian dari supplier"
+            />
+          </div>
+
+          <button 
+            className="primary" 
+            onClick={saveStok} 
+            style={{ marginTop: '20px' }}
+          >
+            Simpan Perubahan Stok
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // List View
+  const lowStokItems = db.bahanBaku.filter(b => b.stok <= b.minimal_stok && b.minimal_stok > 0);
+
+  return (
+    <div className="page-full card list-page">
+      <div className="page-title">
+        <div>
+          <h2>Manajemen Bahan Baku</h2>
+          <p>Kelola bahan baku, harga beli, stok, dan supplier.</p>
+          {lowStokItems.length > 0 && (
+            <small style={{ color: '#c0392b', display: 'block', marginTop: '4px' }}>
+              ⚠️ {lowStokItems.length} bahan baku stok menipis!
+            </small>
+          )}
+        </div>
+        <button onClick={() => setView('form')}>
+          <Plus /> Tambah Bahan Baku
+        </button>
+      </div>
+
+      {db.bahanBaku.length === 0 ? (
+        <Empty title="Belum ada bahan baku" text="Tambahkan bahan baku pertama untuk mulai mengelola stok." />
+      ) : (
+        <div className="table">
+          <div className="tr" style={{ fontWeight: 700, background: '#f5ede6' }}>
+            <span>Nama</span>
+            <span>Satuan</span>
+            <span>Harga Beli</span>
+            <span>Harga Jual</span>
+            <span>Stok</span>
+            <span>Min. Stok</span>
+            <span>Aksi</span>
+          </div>
+          {db.bahanBaku.map(b => {
+            const isLow = b.stok <= b.minimal_stok && b.minimal_stok > 0;
+            return (
+              <div className="tr" key={b.id} style={{ background: isLow ? '#fff0e6' : 'transparent' }}>
+                <b>{b.nama}</b>
+                <span>{b.satuan}</span>
+                <span>{money(b.harga_beli)}</span>
+                <span>{b.harga_jual ? money(b.harga_jual) : '-'}</span>
+                <span style={{ fontWeight: isLow ? 700 : 400, color: isLow ? '#c0392b' : 'inherit' }}>
+                  {b.stok} {isLow && '⚠️'}
+                </span>
+                <span>{b.minimal_stok || '-'}</span>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  <button onClick={() => openStokForm(b)} style={{ background: '#2ecc71', color: 'white' }}>
+                    <Plus size={14} /> Stok
+                  </button>
+                  <button onClick={() => edit(b)}><Edit3 size={14} /></button>
+                  <button className="red" onClick={() => del(b.id)}><Trash2 size={14} /></button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
