@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import StockOpname from "./StockOpname";
 import {
   BarChart3,
   Bell,
